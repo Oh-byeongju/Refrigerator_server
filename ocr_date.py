@@ -19,14 +19,17 @@ def kakao_ocr(image, appkey: str):
 
     return requests.post(API_URL, headers=headers, files={"image": data})
 
-#88ba82fedc172fa6718efbf18cb0eac2
-def receiveImg(img,appkey):
+# 88ba82fedc172fa6718efbf18cb0eac2
+
+
+def receiveImg(img, appkey):
     output = kakao_ocr(img, appkey).json()
     i = 0
-    words=""
+    words = ""
     while True:
         try:
-            words= words + str(output['result'][i]['recognition_words'])[2:]
+            words = words + str(output['result'][i]['recognition_words'])[2:]
+            print(words)
             words = words[:-2]
             i = i+1
         except:

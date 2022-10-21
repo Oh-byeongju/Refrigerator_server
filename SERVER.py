@@ -23,7 +23,7 @@ def get_bytes_stream(sock, s_length):
 
 def main():
     host = '192.168.35.55'  # 호스트 ip를 적어주세요
-    port = 58000  # 포트번호를 임의로 설정해주세요
+    port = 57000  # 포트번호를 임의로 설정해주세요
 
     service = Service()
     server_sock = socket.socket(socket.AF_INET)
@@ -35,8 +35,12 @@ def main():
         client_sock, addr = server_sock.accept()  # 연결 승인
         print('연결 주소 : ', addr)
 
-        len_bytes_string = bytearray(client_sock.recv(1024))[2:]
-        len_bytes = len_bytes_string.decode('utf-8')
+        try:
+            len_bytes_string = bytearray(client_sock.recv(1024))[2:]
+            len_bytes = len_bytes_string.decode('utf-8')
+        except:
+            print("데이터 수신 실패")
+            pass
 
         if len_bytes[0:7] == 'Product':     # 바코드 검색
             result = str(service.Search_P(len_bytes[7:]))
@@ -52,6 +56,7 @@ def main():
 
         elif len_bytes[0:6] == 'Recipe':    # 레시피 검색
             food_arr = list(map(str, len_bytes[6:].split()))
+            print(food_arr)
             result = service.Search_R()
 
             recipe_arr = [[0 for j in range(2)] for i in range(len(result))]
@@ -141,10 +146,22 @@ def main():
             chars = receiveImg(d_img, '418dd09991a16ad0c410f4a38dcf5927')  # 카카오 OCR API
             chars = chars.replace(" ", "")
             result_chars = ''
+            try:
+                if chars.count('.') == 2 or chars.count(',') == 2 or chars.count('.') + chars.count(',') == 2\
+                        :
+                    year, month, day = map(str, chars.split("."))
+                    result_chars = year[-2:] + month + day[0:2]
+            except IOError or IndexError:
+                print("유통 기한 인식 실패")
+                result_chars = ''
+
+
+            """
             for c in chars:
                 if c.isdigit():
                     result_chars += c
             result_chars = result_chars[-6:]
+            """
             print(result_chars)
 
             result_chars = result_chars.encode("UTF-8")
